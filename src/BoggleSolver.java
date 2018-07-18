@@ -1,5 +1,6 @@
 import edu.princeton.cs.algs4.Graph;
-import edu.princeton.cs.algs4.TST
+import edu.princeton.cs.algs4.TST;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 
@@ -22,6 +23,8 @@ public class BoggleSolver
     // Returns the set of all valid words in the given Boggle board, as an Iterable.
     public Iterable<String> getAllValidWords(BoggleBoard board)
     {
+        boolean marked[];
+        char[] temp; // compare to dictionary
         Graph g = ConnectBoard(board);
 
     }
@@ -71,8 +74,28 @@ public class BoggleSolver
         }
         return g;
     }
-    private boolean IsPrefix(String s)
+    // check if current iteration can match
+    private boolean IsPrefix(ArrayList<Character> c)
     {
+        String s = c.toString();
         return tst.keysWithPrefix(s) != null;
     }
+    //return char according to int in graph
+    private char GraphToChar(int index, BoggleBoard board)
+    {
+        int row = index / board.cols();
+        int col = index % board.cols();
+        return board.getLetter(row,col);
+    }
+    private void dfs(Graph G, int first, boolean[] marked, ArrayList<Character> temp)
+    {
+        marked[first] = true;
+        if (temp)
+        for (int w : G.adj(first)) {
+            if (!marked[w]) {
+                dfs(G, w, marked, temp);
+            }
+        }
+    }
+
 }
