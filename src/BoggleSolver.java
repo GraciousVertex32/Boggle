@@ -3,6 +3,8 @@ import edu.princeton.cs.algs4.TST;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import edu.princeton.cs.algs4.In;
+import edu.princeton.cs.algs4.StdOut;
 
 public class BoggleSolver
 {
@@ -16,24 +18,37 @@ public class BoggleSolver
         tst = new TST();
         for (String word : Dictionary)
         {
-            tst.put(word, word.length());
+            if (word.contains("Qu"))
+            {
+                tst.put(word, word.length() + 1);
+            }
+            else
+            {
+                tst.put(word, word.length());
+            }
         }
     }
 
     // Returns the set of all valid words in the given Boggle board, as an Iterable.
     public Iterable<String> getAllValidWords(BoggleBoard board)
     {
-        boolean marked[];
-        char[] temp; // compare to dictionary
+        ArrayList<String> allwords = new ArrayList<>();
+        boolean marked[] = new boolean[board.cols()*board.rows()];
+        ArrayList<Character> temp = new ArrayList<>(); // compare to dictionary
         Graph g = ConnectBoard(board);
-
+        dfs(g,1, marked, temp, board, allwords);
+        return allwords;
     }
 
     // Returns the score of the given word if it is in the dictionary, zero otherwise.
     // (You can assume the word contains only the uppercase letters A through Z.)
     public int scoreOf(String word)
     {
-
+        if (IsPrefix(word))
+        {
+            return (int) tst.get(word);
+        }
+        return 0;
     }
 
     private Graph ConnectBoard(BoggleBoard board)
@@ -80,6 +95,10 @@ public class BoggleSolver
         String s = c.toString();
         return tst.keysWithPrefix(s) != null;
     }
+    private boolean IsPrefix(String s)
+    {
+        return tst.keysWithPrefix(s) != null;
+    }
     //return char according to int in graph
     private char GraphToChar(int index, BoggleBoard board)
     {
@@ -87,15 +106,32 @@ public class BoggleSolver
         int col = index % board.cols();
         return board.getLetter(row,col);
     }
-    private void dfs(Graph G, int first, boolean[] marked, ArrayList<Character> temp)
+    private void dfs(Graph G, int first, boolean[] marked, ArrayList<Character> temp, BoggleBoard B, ArrayList<String> allwords)
     {
         marked[first] = true;
-        if (temp)
-        for (int w : G.adj(first)) {
-            if (!marked[w]) {
-                dfs(G, w, marked, temp);
+        temp.add(GraphToChar(first, B));
+        if (IsPrefix(temp))// if some word down this path
+        {
+            for (int w : G.adj(first))
+            {
+                if (!marked[w])
+                {
+                    dfs(G, w, marked, temp, B, allwords);
+                }
             }
         }
     }
 
+    public static void main(String[] args) {
+        In in = new In(args[0]);
+        String[] dictionary = in.readAllStrings();
+        BoggleSolver solver = new BoggleSolver(dictionary);
+        BoggleBoard board = new BoggleBoard(args[1]);
+        int score = 0;
+        for (String word : solver.getAllValidWords(board)) {
+            StdOut.println(word);
+            score += solver.scoreOf(word);
+        }
+        StdOut.println("Score = " + score);
+    }
 }
