@@ -8,13 +8,13 @@ import edu.princeton.cs.algs4.StdOut;
 
 public class BoggleSolver
 {
-    private final HashSet<String> Dictionary;
+    private final String[] Dictionary;
     private final TST tst;
     // Initializes the data structure using the given array of strings as the dictionary.
     // (You can assume each word in the dictionary contains only the uppercase letters A through Z.)
     public BoggleSolver(String[] dictionary)
     {
-        Dictionary = new HashSet<String>(Arrays.asList(dictionary)) ;
+        this.Dictionary = dictionary ;
         tst = new TST();
         for (String word : Dictionary)
         {
@@ -27,6 +27,7 @@ public class BoggleSolver
                 tst.put(word, word.length());
             }
         }
+        System.out.println(tst.toString());
     }
 
     // Returns the set of all valid words in the given Boggle board, as an Iterable.
@@ -59,21 +60,21 @@ public class BoggleSolver
         for (int i = 1; i <= g.V(); i++)
         {
             // all horizontal connection
-            if (col % i > 2)
+            if (i % col > 2)
             {
                 g.addEdge(i - 1, i);
                 g.addEdge(i - 1, i -2);
             }
-            if (col % i == 1)
+            if (i % col == 1)
             {
                 g.addEdge(i - 1, i);
             }
-            if (col % i == 0)
+            if (i % col == 0)
             {
                 g.addEdge(i - 1, i - 2);
             }
             //all vertical connection
-            if (i > col || i <= col * (row - 1))
+            if (i > col && i <= col * (row - 1))
             {
                 g.addEdge(i - 1, i - col -1);
                 g.addEdge(i - 1, i + col -1);
@@ -92,7 +93,7 @@ public class BoggleSolver
     // check if current iteration can match
     private boolean IsPrefix(ArrayList<Character> c)
     {
-        String s = c.toString();
+        String s = chartostring(c);
         return tst.keysWithPrefix(s) != null;
     }
     private boolean IsPrefix(String s)
@@ -110,6 +111,10 @@ public class BoggleSolver
     {
         marked[first] = true;
         temp.add(GraphToChar(first, B));
+        if (tst.contains(chartostring(temp)))
+        {
+            allwords.add(chartostring(temp));
+        }
         if (IsPrefix(temp))// if some word down this path
         {
             for (int w : G.adj(first))
@@ -121,12 +126,21 @@ public class BoggleSolver
             }
         }
     }
+    private String chartostring(ArrayList<Character> chararray)
+    {
+        StringBuilder sb = new StringBuilder();
+        for (char s : chararray)
+        {
+            sb.append(s);
+        }
+        return sb.toString();
+    }
 
     public static void main(String[] args) {
-        In in = new In(args[0]);
+        In in = new In("dictionary-2letters.txt");
         String[] dictionary = in.readAllStrings();
         BoggleSolver solver = new BoggleSolver(dictionary);
-        BoggleBoard board = new BoggleBoard(args[1]);
+        BoggleBoard board = new BoggleBoard("board4x4.txt");
         int score = 0;
         for (String word : solver.getAllValidWords(board)) {
             StdOut.println(word);
