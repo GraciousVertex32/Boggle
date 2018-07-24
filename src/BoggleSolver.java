@@ -1,8 +1,6 @@
 import edu.princeton.cs.algs4.Graph;
 import edu.princeton.cs.algs4.TST;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
 import edu.princeton.cs.algs4.In;
 import edu.princeton.cs.algs4.StdOut;
 
@@ -36,7 +34,10 @@ public class BoggleSolver
         boolean marked[] = new boolean[board.cols()*board.rows()];
         ArrayList<Character> temp = new ArrayList<>(); // compare to dictionary
         Graph g = ConnectBoard(board);
-        dfs(g,1, marked, temp, board, allwords);
+        for (int a = 0; a < g.V(); a++)
+        {
+            dfs(g, a, marked, temp, board, allwords);
+        }
         return allwords;
     }
 
