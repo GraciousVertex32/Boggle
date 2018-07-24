@@ -27,7 +27,6 @@ public class BoggleSolver
                 tst.put(word, word.length());
             }
         }
-        System.out.println(tst.toString());
     }
 
     // Returns the set of all valid words in the given Boggle board, as an Iterable.
@@ -90,16 +89,38 @@ public class BoggleSolver
         }
         return g;
     }
+
+
+
+
     // check if current iteration can match
+    //================
     private boolean IsPrefix(ArrayList<Character> c)
     {
         String s = chartostring(c);
-        return tst.keysWithPrefix(s) != null;
+        ArrayList<String> temp = new ArrayList<>();
+        for (Object word : tst.keysWithPrefix(s))
+        {
+            temp.add(word.toString());
+        }
+        return temp.size() != 0;
     }
     private boolean IsPrefix(String s)
     {
-        return tst.keysWithPrefix(s) != null;
+        ArrayList<String> temp = new ArrayList<>();
+        for (Object word : tst.keysWithPrefix(s))
+        {
+            temp.add(word.toString());
+        }
+        return temp.size() != 0;
     }
+    //===================
+
+
+
+
+
+
     //return char according to int in graph
     private char GraphToChar(int index, BoggleBoard board)
     {
@@ -110,18 +131,20 @@ public class BoggleSolver
     private void dfs(Graph G, int first, boolean[] marked, ArrayList<Character> temp, BoggleBoard B, ArrayList<String> allwords)
     {
         marked[first] = true;
-        temp.add(GraphToChar(first, B));
-        if (tst.contains(chartostring(temp)))
+        ArrayList<Character> trys = new ArrayList<>();
+        trys = (ArrayList<Character>) temp.clone();
+        trys.add(GraphToChar(first, B));
+        if (tst.contains(chartostring(trys)))
         {
-            allwords.add(chartostring(temp));
+            allwords.add(chartostring(trys));
         }
-        if (IsPrefix(temp))// if some word down this path
+        if (IsPrefix(trys))// if some word down this path
         {
             for (int w : G.adj(first))
             {
                 if (!marked[w])
                 {
-                    dfs(G, w, marked, temp, B, allwords);
+                    dfs(G, w, marked, trys, B, allwords);
                 }
             }
         }
