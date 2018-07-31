@@ -149,8 +149,7 @@ public class BoggleSolver
     }
     private void dfs(Graph G, int first, boolean[] marked, ArrayList<Character> temp, BoggleBoard B, ArrayList<String> allwords)
     {
-        boolean newmarked[] = new boolean[marked.length];
-        newmarked = marked.clone();
+        boolean newmarked[] = marked.clone();
         newmarked[first] = true;
         if (first == 5)
         {
@@ -160,7 +159,7 @@ public class BoggleSolver
         trys = (ArrayList<Character>) temp.clone();
         trys.add(GraphToChar(first, B));
         String neword = chartostring(trys);
-        if (tst.contains(neword) && neword.length() >= 3)
+        if (tst.contains(neword) && neword.length() >= 3 && !allwords.contains(neword))
         {
             allwords.add(chartostring(trys));
         }
