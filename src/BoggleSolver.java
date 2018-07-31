@@ -22,7 +22,30 @@ public class BoggleSolver
             }
             else
             {
-                tst.put(word, word.length());
+                if (word.length() <= 2)
+                {
+                    tst.put(word, 0);
+                }
+                if (word.length() == 3 || word.length() == 4)
+                {
+                    tst.put(word, 1);
+                }
+                if (word.length() == 5)
+                {
+                    tst.put(word, 2);
+                }
+                if (word.length() == 6)
+                {
+                    tst.put(word, 3);
+                }
+                if (word.length() == 7)
+                {
+                    tst.put(word, 5);
+                }
+                if (word.length() == 8)
+                {
+                    tst.put(word, 11);
+                }
             }
         }
     }
@@ -57,35 +80,29 @@ public class BoggleSolver
         int row = board.rows();
         int col = board.cols();
         Graph g = new Graph(row*col);
-        for (int i = 1; i <= g.V(); i++)
+        for (int i = 0; i < g.V(); i++)
         {
-            // all horizontal connection
-            if (i % col > 2)
+            int x = i % col;
+            int y = i / col;
+            if (i==15)
             {
-                g.addEdge(i - 1, i);
-                g.addEdge(i - 1, i -2);
+                int a = 1;
             }
-            if (i % col == 1)
+            if (x + 1 < col)
             {
-                g.addEdge(i - 1, i);
+                g.addEdge(i, i + 1);
             }
-            if (i % col == 0)
+            if (y + 1 < row)
             {
-                g.addEdge(i - 1, i - 2);
+                g.addEdge(i, i + col);
             }
-            //all vertical connection
-            if (i > col && i <= col * (row - 1))
+            if (x + 1 < col && y  +  1 < row)
             {
-                g.addEdge(i - 1, i - col -1);
-                g.addEdge(i - 1, i + col -1);
+                g.addEdge(i, i + col + 1);
             }
-            if (i <= col)
+            if (x - 1 >= 0 && y  +  1 < row)
             {
-                g.addEdge(i - 1, i + col -1);
-            }
-            if (i > col * (row - 1))
-            {
-                g.addEdge(i - 1, i - col -1);
+                g.addEdge(i, i + col - 1);
             }
         }
         return g;
@@ -104,8 +121,9 @@ public class BoggleSolver
         {
             temp.add(word.toString());
         }
-        return temp.size() != 0;
+        return !temp.isEmpty();
     }
+    //performance problem
     private boolean IsPrefix(String s)
     {
         ArrayList<String> temp = new ArrayList<>();
@@ -113,7 +131,7 @@ public class BoggleSolver
         {
             temp.add(word.toString());
         }
-        return temp.size() != 0;
+        return !temp.isEmpty();
     }
     //===================
 
@@ -131,11 +149,18 @@ public class BoggleSolver
     }
     private void dfs(Graph G, int first, boolean[] marked, ArrayList<Character> temp, BoggleBoard B, ArrayList<String> allwords)
     {
-        marked[first] = true;
+        boolean newmarked[] = new boolean[marked.length];
+        newmarked = marked.clone();
+        newmarked[first] = true;
+        if (first == 5)
+        {
+            int v = 1;
+        }
         ArrayList<Character> trys = new ArrayList<>();
         trys = (ArrayList<Character>) temp.clone();
         trys.add(GraphToChar(first, B));
-        if (tst.contains(chartostring(trys)))
+        String neword = chartostring(trys);
+        if (tst.contains(neword) && neword.length() >= 3)
         {
             allwords.add(chartostring(trys));
         }
@@ -145,7 +170,7 @@ public class BoggleSolver
             {
                 if (!marked[w])
                 {
-                    dfs(G, w, marked, trys, B, allwords);
+                    dfs(G, w, newmarked, trys, B, allwords);
                 }
             }
         }
@@ -161,10 +186,10 @@ public class BoggleSolver
     }
 
     public static void main(String[] args) {
-        In in = new In("dictionary-2letters.txt");
+        In in = new In("dictionary-yawl.txt");
         String[] dictionary = in.readAllStrings();
         BoggleSolver solver = new BoggleSolver(dictionary);
-        BoggleBoard board = new BoggleBoard("board4x4.txt");
+        BoggleBoard board = new BoggleBoard("board-points100.txt");
         int score = 0;
         for (String word : solver.getAllValidWords(board)) {
             StdOut.println(word);
