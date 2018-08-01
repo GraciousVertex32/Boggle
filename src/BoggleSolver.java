@@ -42,7 +42,7 @@ public class BoggleSolver
                 {
                     tst.put(word, 5);
                 }
-                if (word.length() == 8)
+                if (word.length() >= 8)
                 {
                     tst.put(word, 11);
                 }
@@ -55,7 +55,7 @@ public class BoggleSolver
     {
         ArrayList<String> allwords = new ArrayList<>();
         boolean marked[] = new boolean[board.cols()*board.rows()];
-        ArrayList<Character> temp = new ArrayList<>(); // compare to dictionary
+        StringBuilder temp = new StringBuilder(); // compare to dictionary
         Graph g = ConnectBoard(board);
         for (int a = 0; a < g.V(); a++)
         {
@@ -109,34 +109,17 @@ public class BoggleSolver
     }
 
 
-
-
     // check if current iteration can match
     //================
-    private boolean IsPrefix(ArrayList<Character> c)
-    {
-        String s = chartostring(c);
-        ArrayList<String> temp = new ArrayList<>();
-        for (Object word : tst.keysWithPrefix(s))
-        {
-            temp.add(word.toString());
-        }
-        return !temp.isEmpty();
-    }
-    //performance problem
     private boolean IsPrefix(String s)
     {
-        ArrayList<String> temp = new ArrayList<>();
         for (Object word : tst.keysWithPrefix(s))
         {
-            temp.add(word.toString());
+            return true;
         }
-        return !temp.isEmpty();
+        return false;
     }
     //===================
-
-
-
 
 
 
@@ -147,48 +130,43 @@ public class BoggleSolver
         int col = index % board.cols();
         return board.getLetter(row,col);
     }
-    private void dfs(Graph G, int first, boolean[] marked, ArrayList<Character> temp, BoggleBoard B, ArrayList<String> allwords)
+    private void dfs(Graph G, int first, boolean[] marked, StringBuilder temp, BoggleBoard B, ArrayList<String> allwords)
     {
         boolean newmarked[] = marked.clone();
         newmarked[first] = true;
-        if (first == 5)
+        temp.append(GraphToChar(first, B));
+        if (temp.toString().endsWith("Q"))
         {
-            int v = 1;
+            temp.append('U');
         }
-        ArrayList<Character> trys = new ArrayList<>();
-        trys = (ArrayList<Character>) temp.clone();
-        trys.add(GraphToChar(first, B));
-        String neword = chartostring(trys);
-        if (tst.contains(neword) && neword.length() >= 3 && !allwords.contains(neword))
+        String neword = temp.toString();
+        if (IsPrefix(neword))// if some word down this path
         {
-            allwords.add(chartostring(trys));
-        }
-        if (IsPrefix(trys))// if some word down this path
-        {
+            if (tst.contains(neword) && neword.length() >= 3 && !allwords.contains(neword))
+            {
+                allwords.add(neword);
+            }
             for (int w : G.adj(first))
             {
                 if (!marked[w])
                 {
-                    dfs(G, w, newmarked, trys, B, allwords);
+                    dfs(G, w, newmarked, temp, B, allwords);
                 }
             }
         }
-    }
-    private String chartostring(ArrayList<Character> chararray)
-    {
-        StringBuilder sb = new StringBuilder();
-        for (char s : chararray)
+        if (temp.toString().endsWith("QU"))
         {
-            sb.append(s);
+            temp.deleteCharAt(temp.length() - 1);
         }
-        return sb.toString();
+        temp.deleteCharAt(temp.length() - 1);
     }
 
     public static void main(String[] args) {
-        In in = new In("dictionary-yawl.txt");
+        In in = new In(args[0]);
         String[] dictionary = in.readAllStrings();
         BoggleSolver solver = new BoggleSolver(dictionary);
-        BoggleBoard board = new BoggleBoard("board-points100.txt");
+        BoggleBoard board = new BoggleBoard(args[1]);
+        System.out.println(board.getLetter(2,1));
         int score = 0;
         for (String word : solver.getAllValidWords(board)) {
             StdOut.println(word);
